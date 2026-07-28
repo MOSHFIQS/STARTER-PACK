@@ -1,0 +1,151 @@
+// Prisma schema for Starter Template Platform
+// Enterprise-grade schema with soft delete, indexes, foreign keys, and cascade rules
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ==================== ENUMS ====================
+
+enum UserRole {
+  SUPER_ADMIN
+  ADMIN
+  CUSTOMER
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+enum NotificationType {
+  INFO
+  SUCCESS
+  WARNING
+  ERROR
+  SYSTEM
+}
+
+enum AuditAction {
+  LOGIN
+  LOGOUT
+  CREATE
+  UPDATE
+  DELETE
+  SOFT_DELETE
+  RESTORE
+  ADMIN_ACTION
+  PROFILE_CHANGE
+  ROLE_CHANGE
+  STATUS_CHANGE
+}
+
+// ==================== USER & AUTH ====================
+
+model User {
+  id            String     @id @default(uuid())
+  email         String     @unique
+  phone         String?    @unique
+  password      String
+  firstName     String
+  lastName      String
+  fullName      String
+  role          UserRole   @default(CUSTOMER)
+  status        UserStatus @default(ACTIVE)
+  avatarUrl     String?
+  bio           String?
+  address       String?
+  city          String?
+  country       String?
+  postalCode    String?
+  dateOfBirth   DateTime?
+  gender        String?
+  emailVerified Boolean    @default(false)
+  phoneVerified Boolean    @default(false)
+  lastLoginAt   DateTime?
+  lastLoginIp   String?
+  lastDevice    String?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  deletedAt     DateTime?
+
+  // Relations
+  notifications Notification[]
+  auditLogs     AuditLog[]
+
+  @@index([role])
+  @@index([status])
+  @@index([deletedAt])
+  @@map("users")
+}
+
+// ==================== NOTIFICATIONS ====================
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      NotificationType @default(INFO)
+  title     String
+  message   String
+  data      Json?
+  isRead    Boolean          @default(false)
+  readAt    DateTime?
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  @@index([userId])
+  @@index([isRead])
+  @@index([type])
+  @@map("notifications")
+}
+
+// ==================== AUDIT LOG ====================
+
+model AuditLog {
+  id          String      @id @default(uuid())
+  userId      String?
+  user        User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+  role        String?
+  action      AuditAction
+  entity      String?
+  entityId    String?
+  ipAddress   String?
+  device      String?
+  userAgent   String?
+  beforeValue Json?
+  afterValue  Json?
+  description String?
+  createdAt   DateTime    @default(now())
+
+  @@index([userId])
+  @@index([action])
+  @@index([entity, entityId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+// ==================== SITE SETTINGS ====================
+
+model SiteSetting {
+  id           String   @id @default(uuid())
+  siteName     String   @default("StarterApp")
+  tagline      String?
+  logoUrl      String?
+  phone        String?
+  email        String?
+  address      String?
+  facebookUrl  String?
+  twitterUrl   String?
+  instagramUrl String?
+  linkedinUrl  String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("site_settings")
+}
