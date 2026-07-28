@@ -266,12 +266,12 @@
      /* Sidebar */
      --sidebar: oklch(1 0 0);
      --sidebar-foreground: oklch(0.2 0.01 240);
-     --sidebar-primary: oklch(0.2 0.01 240);
-     --sidebar-primary-foreground: oklch(1 0 0);
-     --sidebar-accent: oklch(0.96 0.002 240);
-     --sidebar-accent-foreground: oklch(0.12 0.01 240);
+     --sidebar-primary: var(--primary);
+     --sidebar-primary-foreground: var(--primary-foreground);
+     --sidebar-accent: color-mix(in oklch, var(--primary) 8%, transparent);
+     --sidebar-accent-foreground: var(--primary);
      --sidebar-border: oklch(0.95 0.002 240);
-     --sidebar-ring: oklch(0.55 0.14 155);
+     --sidebar-ring: var(--primary);
 
      /* Semantic status colors */
      --success: oklch(0.6 0.13 150);
@@ -335,12 +335,12 @@
 
      --sidebar: oklch(0.19 0.008 240);
      --sidebar-foreground: oklch(0.97 0.004 240);
-     --sidebar-primary: oklch(0.68 0.15 155);
-     --sidebar-primary-foreground: oklch(0.16 0.01 240);
-     --sidebar-accent: oklch(0.3 0.03 155);
-     --sidebar-accent-foreground: oklch(0.92 0.02 155);
+     --sidebar-primary: var(--primary);
+     --sidebar-primary-foreground: var(--primary-foreground);
+     --sidebar-accent: color-mix(in oklch, var(--primary) 15%, transparent);
+     --sidebar-accent-foreground: var(--primary);
      --sidebar-border: oklch(1 0 0 / 10%);
-     --sidebar-ring: oklch(0.68 0.15 155);
+     --sidebar-ring: var(--primary);
 
      --success: oklch(0.7 0.15 150);
      --success-foreground: oklch(0.16 0.01 240);

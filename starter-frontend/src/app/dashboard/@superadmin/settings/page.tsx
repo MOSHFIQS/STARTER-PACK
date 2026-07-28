@@ -73,6 +73,25 @@ function SuperadminSettingsContent() {
           }
      }, [settings]);
 
+     // Live preview color customization as you edit/pick colors
+     useEffect(() => {
+          if (primaryColor) {
+               const root = document.documentElement;
+               root.style.setProperty('--primary', primaryColor);
+               root.style.setProperty('--ring', primaryColor);
+               root.style.setProperty('--color-primary', primaryColor);
+          }
+
+          return () => {
+               // Restore database settings on unmount if not saved
+               const savedColor = settings?.primaryColor || localStorage.getItem("starter-app-primary-color") || "#10B981";
+               const root = document.documentElement;
+               root.style.setProperty('--primary', savedColor);
+               root.style.setProperty('--ring', savedColor);
+               root.style.setProperty('--color-primary', savedColor);
+          };
+     }, [primaryColor, settings]);
+
      const handleSave = async (e: React.FormEvent) => {
           e.preventDefault();
           try {
