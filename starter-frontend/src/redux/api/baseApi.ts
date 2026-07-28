@@ -6,6 +6,12 @@ const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v
 const rawBaseQuery = fetchBaseQuery({
      baseUrl: API_BASE,
      credentials: "include",
+     prepareHeaders: (headers) => {
+          headers.set("Cache-Control", "no-cache, no-store, must-revalidate");
+          headers.set("Pragma", "no-cache");
+          headers.set("Expires", "0");
+          return headers;
+     },
 });
 
 const baseQuery: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError> = async (
@@ -13,7 +19,12 @@ const baseQuery: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError> =
      api,
      extraOptions
 ) => {
-     let result = await rawBaseQuery(args, api, extraOptions);
+     // Force no-store caching to bypass browser request cache on reload
+     const adjustedArgs = typeof args === "string"
+          ? { url: args, cache: "no-store" as const }
+          : { ...args, cache: "no-store" as const };
+
+     let result = await rawBaseQuery(adjustedArgs, api, extraOptions);
 
      if (result.error && result.error.status === 401) {
           api.dispatch(clearAuth());
