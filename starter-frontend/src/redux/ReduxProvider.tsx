@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import { Provider } from "react-redux";
 import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "@/redux/slices/authSlice";
@@ -9,24 +9,18 @@ import { useGetSiteSettingsQuery } from "@/redux/api/siteSettingApi";
 
 function DynamicSiteSettingsInjector() {
      const { data: settings } = useGetSiteSettingsQuery();
-     if (!settings?.primaryColor) return null;
 
-     return (
-          <style dangerouslySetInnerHTML={{
-               __html: `
-                    :root {
-                         --primary: ${settings.primaryColor} !important;
-                         --ring: ${settings.primaryColor} !important;
-                         --color-primary: ${settings.primaryColor} !important;
-                    }
-                    .dark {
-                         --primary: ${settings.primaryColor} !important;
-                         --ring: ${settings.primaryColor} !important;
-                         --color-primary: ${settings.primaryColor} !important;
-                    }
-               `
-          }} />
-     );
+     useEffect(() => {
+          if (settings?.primaryColor) {
+               localStorage.setItem("starter-app-primary-color", settings.primaryColor);
+               const root = document.documentElement;
+               root.style.setProperty('--primary', settings.primaryColor);
+               root.style.setProperty('--ring', settings.primaryColor);
+               root.style.setProperty('--color-primary', settings.primaryColor);
+          }
+     }, [settings]);
+
+     return null;
 }
 
 export function ReduxProvider({ 

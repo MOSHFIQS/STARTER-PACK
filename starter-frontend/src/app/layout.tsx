@@ -55,6 +55,14 @@ export default async function RootLayout({
                                              } else {
                                                   root.classList.add(theme);
                                              }
+
+                                             // Primary color injection
+                                             var primaryColor = localStorage.getItem('starter-app-primary-color');
+                                             if (primaryColor) {
+                                                  root.style.setProperty('--primary', primaryColor);
+                                                  root.style.setProperty('--ring', primaryColor);
+                                                  root.style.setProperty('--color-primary', primaryColor);
+                                             }
                                         } catch (e) {}
                                    })();
                               `,
