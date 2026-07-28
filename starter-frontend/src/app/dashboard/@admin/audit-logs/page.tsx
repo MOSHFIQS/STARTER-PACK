@@ -84,7 +84,7 @@ function AuditLogsContent() {
                if (actionFilter) params.action = actionFilter;
                if (entityFilter) params.entity = entityFilter;
 
-               const res = await store.dispatch(auditLogApi.endpoints.getAuditLogs.initiate(params, { forceRefetch: true })).unwrap();
+               const res = await store.dispatch(auditLogApi.endpoints.getAuditLogs.initiate(params)).unwrap();
                setLogs(res.data || []);
                setTotalPages(res.meta?.totalPages ?? 1);
                setTotalItems(res.meta?.total ?? 0);

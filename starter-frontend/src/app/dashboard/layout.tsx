@@ -76,9 +76,9 @@ function DashboardNotifications() {
      const loadNotifications = useCallback(async () => {
           setLoading(true);
           try {
-               const data = await store.dispatch(notificationApi.endpoints.getNotifications.initiate({ limit: 5 }, { forceRefetch: true })).unwrap();
+               const data = await store.dispatch(notificationApi.endpoints.getNotifications.initiate({ limit: 5 })).unwrap();
                setNotifications(data.data || []);
-               const unreadData = await store.dispatch(notificationApi.endpoints.getUnreadCount.initiate(undefined, { forceRefetch: true })).unwrap();
+               const unreadData = await store.dispatch(notificationApi.endpoints.getUnreadCount.initiate(undefined)).unwrap();
                setUnread(unreadData.count || 0);
           } catch {
                setNotifications([]);

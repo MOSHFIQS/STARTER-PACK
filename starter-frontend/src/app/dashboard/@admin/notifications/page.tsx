@@ -82,12 +82,12 @@ function NotificationsContent() {
                if (typeFilter) params.type = typeFilter;
                if (readFilter) params.isRead = readFilter;
 
-               const res = await store.dispatch(notificationApi.endpoints.getNotifications.initiate(params, { forceRefetch: true })).unwrap();
+               const res = await store.dispatch(notificationApi.endpoints.getNotifications.initiate(params)).unwrap();
                setNotifications(res.data || []);
                setTotalPages(res.meta?.totalPages ?? 1);
                setTotalItems(res.meta?.total ?? 0);
 
-               const countRes = await store.dispatch(notificationApi.endpoints.getUnreadCount.initiate(undefined, { forceRefetch: true })).unwrap();
+               const countRes = await store.dispatch(notificationApi.endpoints.getUnreadCount.initiate(undefined)).unwrap();
                setUnreadCount(typeof countRes === "number" ? countRes : (countRes as { count?: number })?.count ?? 0);
           } catch (err) {
                setError(extractErrorMessage(err, "Failed to load notifications"));

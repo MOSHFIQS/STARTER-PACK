@@ -76,7 +76,7 @@ function CustomerNotificationsContent() {
 
      const fetchUnreadCount = useCallback(async () => {
           try {
-               const res = await store.dispatch(notificationApi.endpoints.getUnreadCount.initiate(undefined, { forceRefetch: true })).unwrap();
+               const res = await store.dispatch(notificationApi.endpoints.getUnreadCount.initiate(undefined)).unwrap();
                setUnreadCount(res.count);
           } catch {
                // silent fail
@@ -97,7 +97,7 @@ function CustomerNotificationsContent() {
                if (typeFilter) params.type = typeFilter;
                if (readFilter === "unread") params.isRead = "false";
                if (readFilter === "read") params.isRead = "true";
-               const res = await store.dispatch(notificationApi.endpoints.getNotifications.initiate(params, { forceRefetch: true })).unwrap();
+               const res = await store.dispatch(notificationApi.endpoints.getNotifications.initiate(params)).unwrap();
                const normalized = normalizePaginatedResponse(
                     res as PaginatedResponse<AppNotification>,
                );

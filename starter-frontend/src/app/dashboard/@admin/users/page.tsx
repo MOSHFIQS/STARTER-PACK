@@ -133,7 +133,7 @@ function UsersContent() {
                if (roleFilter !== "all") params.role = roleFilter;
                if (statusFilter !== "all") params.status = statusFilter;
 
-               const res = await store.dispatch(userApi.endpoints.getUsers.initiate(params, { forceRefetch: true })).unwrap();
+               const res = await store.dispatch(userApi.endpoints.getUsers.initiate(params)).unwrap();
                setUsers(res.data || []);
                setTotalPages(res.meta?.totalPages || 1);
                setTotalItems(res.meta?.total || 0);
