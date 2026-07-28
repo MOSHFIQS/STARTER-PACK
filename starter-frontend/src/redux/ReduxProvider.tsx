@@ -5,6 +5,29 @@ import { Provider } from "react-redux";
 import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "@/redux/slices/authSlice";
 import { baseApi } from "@/redux/api/baseApi";
+import { useGetSiteSettingsQuery } from "@/redux/api/siteSettingApi";
+
+function DynamicSiteSettingsInjector() {
+     const { data: settings } = useGetSiteSettingsQuery();
+     if (!settings?.primaryColor) return null;
+
+     return (
+          <style dangerouslySetInnerHTML={{
+               __html: `
+                    :root {
+                         --primary: ${settings.primaryColor} !important;
+                         --ring: ${settings.primaryColor} !important;
+                         --color-primary: ${settings.primaryColor} !important;
+                    }
+                    .dark {
+                         --primary: ${settings.primaryColor} !important;
+                         --ring: ${settings.primaryColor} !important;
+                         --color-primary: ${settings.primaryColor} !important;
+                    }
+               `
+          }} />
+     );
+}
 
 export function ReduxProvider({ 
      children, 
@@ -29,10 +52,15 @@ export function ReduxProvider({
                          isAuthenticated: true,
                          isLoading: false,
                          error: null,
-                    }
-               } : undefined
-          });
-     }
+                     }
+                } : undefined
+           });
+      }
 
-     return <Provider store={storeRef.current}>{children}</Provider>;
+      return (
+           <Provider store={storeRef.current}>
+                <DynamicSiteSettingsInjector />
+                {children}
+           </Provider>
+      );
 }

@@ -56,4 +56,9 @@ export class UpdateSiteSettingDto {
      @IsOptional()
      @IsString()
      linkedinUrl?: string;
+
+     @ApiPropertyOptional({ example: '#10B981', description: 'Primary brand color' })
+     @IsOptional()
+     @IsString()
+     primaryColor?: string;
 }

@@ -103,6 +103,7 @@ export interface SiteSetting {
      twitterUrl: string | null;
      instagramUrl: string | null;
      linkedinUrl: string | null;
+     primaryColor: string | null;
      createdAt: string;
      updatedAt: string;
 }
@@ -118,4 +119,5 @@ export interface SiteSettingInput {
      twitterUrl?: string;
      instagramUrl?: string;
      linkedinUrl?: string;
+     primaryColor?: string;
 }
