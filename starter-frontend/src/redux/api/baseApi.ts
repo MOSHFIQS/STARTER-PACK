@@ -64,7 +64,8 @@ const baseQuery: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError> =
 export const baseApi = createApi({
      reducerPath: "api",
      baseQuery,
-     keepUnusedDataFor: 300, // Cache data for 5 minutes — serves repeated route visits from memory
+     refetchOnMountOrArgChange: true, // Always fetch fresh data on every route/component mount
+     keepUnusedDataFor: 0,            // Do not keep unused cache data in memory
      tagTypes: [
           "User",
           "Notification",
