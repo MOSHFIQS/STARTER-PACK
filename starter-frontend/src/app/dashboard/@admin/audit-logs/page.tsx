@@ -1,9 +1,8 @@
 "use client";
-import { auditLogApi } from "@/redux/api/auditLogApi";
-import { store } from "@/redux/store";
+import { useGetAuditLogsQuery } from "@/redux/api/auditLogApi";
 
 import { Eye, History } from "lucide-react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { ActionsMenu, type Action } from "@/components/shared/ActionsMenu";
@@ -54,50 +53,35 @@ export default function AuditLogsPage() {
 }
 
 function AuditLogsContent() {
-     const [logs, setLogs] = useState<AuditLog[]>([]);
-     const [loading, setLoading] = useState(true);
-     const [error, setError] = useState<string | null>(null);
-
      const [search, setSearch] = useState("");
      const [actionFilter, setActionFilter] = useState("");
      const [entityFilter, setEntityFilter] = useState("");
      const [page, setPage] = useState(1);
      const [pageSize, setPageSize] = useState(20);
-     const [totalPages, setTotalPages] = useState(1);
-     const [totalItems, setTotalItems] = useState(0);
      const [sortKey, setSortKey] = useState("createdAt");
      const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
 
      const [detailsLog, setDetailsLog] = useState<AuditLog | null>(null);
 
-     const fetchLogs = useCallback(async () => {
-          setLoading(true);
-          setError(null);
-          try {
-               const params: Record<string, string | number> = {
-                    page,
-                    limit: pageSize,
-                    sortBy: sortKey,
-                    sortOrder: sortDirection,
-               };
-               if (search) params.search = search;
-               if (actionFilter) params.action = actionFilter;
-               if (entityFilter) params.entity = entityFilter;
-
-               const res = await store.dispatch(auditLogApi.endpoints.getAuditLogs.initiate(params)).unwrap();
-               setLogs(res.data || []);
-               setTotalPages(res.meta?.totalPages ?? 1);
-               setTotalItems(res.meta?.total ?? 0);
-          } catch (err) {
-               setError(extractErrorMessage(err, "Failed to load audit logs"));
-          } finally {
-               setLoading(false);
-          }
+     const queryParams = useMemo(() => {
+          const params: Record<string, string | number> = {
+               page,
+               limit: pageSize,
+               sortBy: sortKey,
+               sortOrder: sortDirection,
+          };
+          if (search) params.search = search;
+          if (actionFilter) params.action = actionFilter;
+          if (entityFilter) params.entity = entityFilter;
+          return params;
      }, [page, pageSize, search, actionFilter, entityFilter, sortKey, sortDirection]);
 
-     useEffect(() => {
-          fetchLogs();
-     }, [fetchLogs]);
+     const { data: logsData, isLoading: loading, error: queryError, isFetching } = useGetAuditLogsQuery(queryParams);
+
+     const logs = logsData?.data || [];
+     const totalPages = logsData?.meta?.totalPages ?? 1;
+     const totalItems = logsData?.meta?.total ?? 0;
+     const error = queryError ? extractErrorMessage(queryError, "Failed to load audit logs") : null;
 
      const handleSearch = (value: string) => {
           setSearch(value);

@@ -1,5 +1,5 @@
 "use client";
-import { userApi } from "@/redux/api/userApi";
+import { userApi, useGetUsersQuery } from "@/redux/api/userApi";
 import { store } from "@/redux/store";
 
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
@@ -42,7 +42,7 @@ import type {
 import { extractErrorMessage, formatDate, formatRelativeTime, getInitials } from "@/lib/utils";
 import type { User, UserRole, UserStatus } from "@/types/user.types";
 import { Eye, Pencil, Plus, ShieldCheck, Trash2 } from "lucide-react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
 const ROLE_FILTER_OPTIONS = [
@@ -89,17 +89,12 @@ export default function UsersPage() {
 
 function UsersContent() {
      const { user: currentUser } = useAuth();
-     const [users, setUsers] = useState<User[]>([]);
-     const [loading, setLoading] = useState(true);
-     const [error, setError] = useState<string | null>(null);
 
      const [search, setSearch] = useState("");
      const [roleFilter, setRoleFilter] = useState("all");
      const [statusFilter, setStatusFilter] = useState("all");
      const [page, setPage] = useState(1);
      const [pageSize, setPageSize] = useState(10);
-     const [totalPages, setTotalPages] = useState(1);
-     const [totalItems, setTotalItems] = useState(0);
      const [sortKey, setSortKey] = useState("createdAt");
      const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
 
@@ -113,40 +108,31 @@ function UsersContent() {
      const [deleteUser, setDeleteUser] = useState<User | null>(null);
      const [deleting, setDeleting] = useState(false);
 
-     // Role-change dialog state — enforces the role hierarchy
-     // (superadmin > admin > customer) and self-protection rules.
      const [roleTarget, setRoleTarget] = useState<User | null>(null);
      const [pendingRole, setPendingRole] = useState<UserRole | null>(null);
      const [changingRole, setChangingRole] = useState(false);
 
-     const fetchUsers = useCallback(async () => {
-          setLoading(true);
-          setError(null);
-          try {
-               const params: ListQueryParams = {
-                    page,
-                    limit: pageSize,
-                    search: search || undefined,
-                    sortBy: sortKey,
-                    sortOrder: sortDirection,
-               };
-               if (roleFilter !== "all") params.role = roleFilter;
-               if (statusFilter !== "all") params.status = statusFilter;
-
-               const res = await store.dispatch(userApi.endpoints.getUsers.initiate(params)).unwrap();
-               setUsers(res.data || []);
-               setTotalPages(res.meta?.totalPages || 1);
-               setTotalItems(res.meta?.total || 0);
-          } catch (err) {
-               setError(extractErrorMessage(err, "Failed to load users"));
-          } finally {
-               setLoading(false);
-          }
+     // Build query params for RTK Query
+     const queryParams = useMemo(() => {
+          const params: Record<string, string | number> = {
+               page,
+               limit: pageSize,
+               sortBy: sortKey,
+               sortOrder: sortDirection,
+          };
+          if (search) params.search = search;
+          if (roleFilter !== "all") params.role = roleFilter;
+          if (statusFilter !== "all") params.status = statusFilter;
+          return params;
      }, [page, pageSize, search, roleFilter, statusFilter, sortKey, sortDirection]);
 
-     useEffect(() => {
-          fetchUsers();
-     }, [fetchUsers]);
+     // useQuery: isLoading=true only on first fetch, false instantly on cache hits
+     const { data: usersData, isLoading: loading, error: queryError, isFetching } = useGetUsersQuery(queryParams);
+
+     const users = usersData?.data || [];
+     const totalPages = usersData?.meta?.totalPages || 1;
+     const totalItems = usersData?.meta?.total || 0;
+     const error = queryError ? extractErrorMessage(queryError, "Failed to load users") : null;
 
      const handleSearchChange = (value: string) => {
           setSearch(value);
@@ -214,7 +200,6 @@ function UsersContent() {
                     toast.success("User created successfully");
                }
                setFormOpen(false);
-               fetchUsers();
           } catch (err) {
                toast.error(extractErrorMessage(err, "Failed to save user"));
           } finally {
@@ -229,7 +214,6 @@ function UsersContent() {
                await store.dispatch(userApi.endpoints.deleteUser.initiate(deleteUser.id)).unwrap();
                toast.success("User deleted successfully");
                setDeleteUser(null);
-               fetchUsers();
           } catch (err) {
                toast.error(extractErrorMessage(err, "Failed to delete user"));
           } finally {
@@ -244,7 +228,6 @@ function UsersContent() {
                toast.success(`Role updated to ${ROLE_LABELS[role] ?? role}`);
                setRoleTarget(null);
                setPendingRole(null);
-               fetchUsers();
           } catch (err) {
                toast.error(extractErrorMessage(err, "Failed to update role"));
           } finally {
@@ -280,7 +263,6 @@ function UsersContent() {
           try {
                await store.dispatch(userApi.endpoints.updateUserStatus.initiate({ id: user.id, status: status })).unwrap();
                toast.success("Status updated successfully");
-               fetchUsers();
           } catch (err) {
                toast.error(extractErrorMessage(err, "Failed to update status"));
           }
