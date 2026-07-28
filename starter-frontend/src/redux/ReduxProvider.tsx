@@ -17,6 +17,11 @@ function DynamicSiteSettingsInjector() {
                root.style.setProperty('--primary', settings.primaryColor);
                root.style.setProperty('--ring', settings.primaryColor);
                root.style.setProperty('--color-primary', settings.primaryColor);
+               
+               // Force browser repaint / style recalculation
+               root.classList.add('theme-updating');
+               void root.offsetHeight;
+               root.classList.remove('theme-updating');
           }
      }, [settings]);
 

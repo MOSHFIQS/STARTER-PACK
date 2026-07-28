@@ -80,6 +80,11 @@ function SuperadminSettingsContent() {
                root.style.setProperty('--primary', primaryColor);
                root.style.setProperty('--ring', primaryColor);
                root.style.setProperty('--color-primary', primaryColor);
+
+               // Force browser repaint
+               root.classList.add('theme-updating');
+               void root.offsetHeight;
+               root.classList.remove('theme-updating');
           }
 
           return () => {
@@ -89,6 +94,11 @@ function SuperadminSettingsContent() {
                root.style.setProperty('--primary', savedColor);
                root.style.setProperty('--ring', savedColor);
                root.style.setProperty('--color-primary', savedColor);
+
+               // Force browser repaint
+               root.classList.add('theme-updating');
+               void root.offsetHeight;
+               root.classList.remove('theme-updating');
           };
      }, [primaryColor, settings]);
 
