@@ -34,7 +34,7 @@ export function useAuth() {
           } else if (user) {
                dispatch(setUser(user));
                if (typeof window !== "undefined") {
-                    const sessionData = { id: user.id, role: user.role, firstName: user.firstName };
+                    const sessionData = { id: user.id, role: user.role, firstName: user.firstName, lastName: user.lastName };
                     document.cookie = `user_session=${encodeURIComponent(JSON.stringify(sessionData))}; path=/; max-age=604800;`;
                }
           } else if (error) {
@@ -66,7 +66,7 @@ export function useAuth() {
                // waiting for the /auth/me refetch.
                dispatch(setUser(res.user));
                if (typeof window !== "undefined") {
-                    const sessionData = { id: res.user.id, role: res.user.role, firstName: res.user.firstName };
+                    const sessionData = { id: res.user.id, role: res.user.role, firstName: res.user.firstName, lastName: res.user.lastName };
                     document.cookie = `user_session=${encodeURIComponent(JSON.stringify(sessionData))}; path=/; max-age=604800;`;
                }
           }
